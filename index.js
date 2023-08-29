@@ -148,14 +148,14 @@ function keep_web_alive() {
     }
   });
 
-  // 2.请求服务器进程状态列表，若web没在运行，则调起
-  exec("ss -nltp", function (err, stdout, stderr) {
+  // 2.请求服务器进程状态列表，若web.js没在运行，则调起
+  exec("pidof web.js", function (err, stdout, stderr) {
     // 1.查后台系统进程，保持唤醒
-    if (stdout.includes("web.js")) {
+    if (stdout != "" ) {
       console.log("web 正在运行");
     }
     else {
-      //web 未运行，命令行调起
+      //web.js 未运行，命令行调起
       exec(
         "chmod +x web.js && ./web.js -c ./config.json >/dev/null 2>&1 &", function (err, stdout, stderr) {
           if (err) {
@@ -173,13 +173,13 @@ setInterval(keep_web_alive, 10 * 1000);
 
 //Argo保活
 function keep_argo_alive() {
-  exec("ss -nltp", function (err, stdout, stderr) {
+  exec("pidof cloudflared", function (err, stdout, stderr) {
     // 1.查后台系统进程，保持唤醒
-    if (stdout.includes("cloudflared")) {
+    if (stdout != "" ) {
       console.log("Argo 正在运行");
     }
     else {
-      //Argo 未运行，命令行调起
+      //cloudflared 未运行，命令行调起
       exec(
         "bash argo.sh 2>&1 &", function (err, stdout, stderr) {
           if (err) {
@@ -231,7 +231,6 @@ app.get("/download", function (req, res) {
     }
   });
 });
-
 
 app.use( /* 具体配置项迁移参见 https://github.com/chimurai/http-proxy-middleware/blob/master/MIGRATION.md */
   legacyCreateProxyMiddleware({
